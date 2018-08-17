@@ -7,7 +7,7 @@ import com.martmists.chitose.entities.permissions.BotPermission
 import com.martmists.chitose.entities.permissions.UserPermission
 import net.dv8tion.jda.core.Permission
 
-class HackBan : Command() {
+class Hackban : Command() {
     override val description = "HackBan users"
     override val example = "hackban 838502072396 Dick"
     override val usage = "hackban <id>[,id,...] [reason]"
