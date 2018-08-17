@@ -1,0 +1,6 @@
+{
+  "prefixes": ["!"],
+  "owners": [161866631004422144],
+  "commandPath": "com.martmists.allthebots.commands",
+  "token": "<your token>"
+}
