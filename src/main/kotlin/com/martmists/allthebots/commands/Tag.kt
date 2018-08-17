@@ -12,7 +12,9 @@ data class TagData(
 )
 
 fun saveTags(tags: MutableList<TagData>){
-    Gson().toJson(tags.toTypedArray(), File("tags.json").writer())
+    val writer = File("tags.json").writer()
+    Gson().toJson(tags.toTypedArray(), writer)
+    writer.close()
 }
 
 class Create(private val tags: MutableList<TagData>): SubCommand() {
@@ -104,9 +106,13 @@ class Tag: Command() {
     override val usage = "tag <tag name>"
     override val example = "tag needaserver"
 
-    private val tags = Gson().fromJson(File("tags.json").reader(), Array<TagData>::class.java).toMutableList()
+    private val tags: MutableList<TagData>
 
     init {
+        val reader = File("tags.json").reader()
+        tags = Gson().fromJson(reader, Array<TagData>::class.java).toMutableList()
+        reader.close()
+
         subcommands += Create(tags)
         subcommands += Delete(tags)
         subcommands += Edit(tags)
