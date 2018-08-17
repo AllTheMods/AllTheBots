@@ -9,8 +9,8 @@ import net.dv8tion.jda.core.Permission
 
 class HackBan : Command() {
     override val description = "HackBan users"
-    override val example = "ban 838502072396 Dick"
-    override val usage = "ban <id>[,id,...] [reason]"
+    override val example = "hackban 838502072396 Dick"
+    override val usage = "hackban <id>[,id,...] [reason]"
     override val guildOnly = true
 
     init {
