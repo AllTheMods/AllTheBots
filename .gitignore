@@ -1,6 +1,6 @@
 build/
 .gradle/
 .idea/
-config.json
 libs/
 out/
+*.json
