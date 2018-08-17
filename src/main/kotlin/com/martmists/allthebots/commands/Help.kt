@@ -39,7 +39,7 @@ class Help: Command() {
                 if (ctx.guild.selfMember.hasPermission(Permission.MESSAGE_EMBED_LINKS)) {
                     ctx.send(helpText.second)
                 } else {
-                    ctx.send(helpText.second)
+                    ctx.send(helpText.first)
                 }
             }
         }
