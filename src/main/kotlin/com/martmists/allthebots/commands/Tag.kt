@@ -17,7 +17,8 @@ fun saveTags(tags: MutableList<TagData>){
     writer.close()
 }
 
-class Create(private val tags: MutableList<TagData>): SubCommand() {
+class CreateTag(private val tags: MutableList<TagData>): SubCommand() {
+    override val name = "create"
     override val description = "Create a tag"
     override val usage = "tag create <tag name> <content>"
     override val example = "tag create help no help for you"
@@ -44,7 +45,8 @@ class Create(private val tags: MutableList<TagData>): SubCommand() {
     }
 }
 
-class Delete(private val tags: MutableList<TagData>): SubCommand() {
+class DeleteTag(private val tags: MutableList<TagData>): SubCommand() {
+    override val name = "delete"
     override val description = "Delete a tag"
     override val usage = "tag delete <tag name>"
     override val example = "tag delete useless_tag"
@@ -71,7 +73,8 @@ class Delete(private val tags: MutableList<TagData>): SubCommand() {
     }
 }
 
-class Edit(private val tags: MutableList<TagData>): SubCommand() {
+class EditTag(private val tags: MutableList<TagData>): SubCommand() {
+    override val name = "edit"
     override val description = "Edit a tag"
     override val usage = "tag edit <tag name> <new content>"
     override val example = "tag edit my_tag this is my tag"

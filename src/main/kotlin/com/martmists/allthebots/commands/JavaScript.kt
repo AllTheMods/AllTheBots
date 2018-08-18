@@ -25,6 +25,7 @@ class JavaScript: Command() {
 
     class CF: ClassFilter {
         override fun exposeToScripts(p0: String?): Boolean {
+            println(p0)
             return false
         }
     }
@@ -40,7 +41,8 @@ class JavaScript: Command() {
 
         try {
             val result = engine.eval(code, context)
-            ctx.send(result.toString())
+            if (result != null)
+                ctx.send(result.toString())
         } catch (e: Exception) {
             ctx.sendException(e)
         }

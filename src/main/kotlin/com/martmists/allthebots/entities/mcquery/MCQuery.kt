@@ -100,12 +100,12 @@ class MCQuery(private val serverAddress: String, private val queryPort: Int = 25
         } catch (e: SocketException) {
             e.printStackTrace()
         } catch (e: SocketTimeoutException) {
-            System.err.println("Socket Timeout! Is the server offline?")
+            // System.err.println("Socket Timeout! Is the server offline?")
             //System.exit(1);
             // throw exception
         } catch (e: UnknownHostException) {
-            System.err.println("Unknown host!")
-            e.printStackTrace()
+            //System.err.println("Unknown host!")
+            // e.printStackTrace()
             //System.exit(1);
             // throw exception
         } catch (e: Exception) //any other exceptions that may occur
