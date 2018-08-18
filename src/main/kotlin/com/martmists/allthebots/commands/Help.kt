@@ -20,7 +20,9 @@ class Help: Command() {
         val command = ctx.args["command"] as String
 
         if (command.isEmpty()){
-            val helpText = Core.handler.commands.map {
+            val helpText = Core.handler.commands.filter {
+                it.value.userPermissions.any { !ctx.member.hasPermission(it.perm) }
+            }.map {
                 val result = Core.handler.getHelp(it.value, ctx, false) as String
                 result
             }.joinToString("\n")
@@ -32,8 +34,8 @@ class Help: Command() {
 
             val targetCmd = cmd.getSubCommand(args)
 
-            if (targetCmd.second.isNotEmpty()){
-                ctx.send("SubCommand not found.")
+            if (targetCmd.second.isNotEmpty() || targetCmd.first.userPermissions.any { !ctx.member.hasPermission(it.perm) }){
+                ctx.send("(Sub)Command not found.")
             } else {
                 val helpText = Core.handler.getHelp(targetCmd.first, ctx, true) as Pair<String, MessageEmbed>
                 if (ctx.guild.selfMember.hasPermission(Permission.MESSAGE_EMBED_LINKS)) {
