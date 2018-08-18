@@ -16,7 +16,7 @@ class AllTheBots(
 ): Core(prefix, owners, commandPath, typeConverter, helpFormatter, totalShards){
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
         if (event.guild.idLong == 254530689225981953) {
-            event.guild.controller.addRolesToMember(event.member, event.guild.getRoleById(254530689225981953))
+            event.guild.controller.addRolesToMember(event.member, event.guild.getRoleById(297602126853570560)).queue()
         }
     }
 }
