@@ -1,7 +1,7 @@
 package com.martmists.allthebots
 
 import com.google.gson.Gson
-import com.martmists.allthebots.commands.AllTheBots
+import com.martmists.allthebots.entities.AllTheBots
 import java.io.File
 
 fun main(args: Array<String>){

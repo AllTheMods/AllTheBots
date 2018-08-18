@@ -1,4 +1,4 @@
-package com.martmists.allthebots.commands
+package com.martmists.allthebots.entities
 
 import com.martmists.chitose.entities.Core
 import com.martmists.chitose.entities.cmd.HelpFormatter
