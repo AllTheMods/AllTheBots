@@ -116,9 +116,9 @@ class Tag: Command() {
         tags = Gson().fromJson(reader, Array<TagData>::class.java).toMutableList()
         reader.close()
 
-        subcommands += Create(tags)
-        subcommands += Delete(tags)
-        subcommands += Edit(tags)
+        subcommands += CreateTag(tags)
+        subcommands += DeleteTag(tags)
+        subcommands += EditTag(tags)
 
         arguments += argument<String>("name")
     }

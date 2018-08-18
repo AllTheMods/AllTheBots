@@ -154,6 +154,10 @@ class ServerLookup: Command() {
 
         aliases += "lookup"
 
+        subcommands += RegisterServer(servers)
+        subcommands += RemoveServer(servers)
+        subcommands += EditServer(servers)
+
         arguments += argument<String>("ip")
         arguments += argument("port", defaultValue = 25565)
     }
