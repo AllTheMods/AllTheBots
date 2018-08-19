@@ -30,13 +30,14 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile 'com.google.code.gson:gson:2.8.5'
-    
+
     compile files("libs/Chitose.jar")
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5"
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:0.22.5'
     compile 'net.dv8tion:JDA:3.5.1_350'
-    compile "org.jetbrains.kotlin:kotlin-reflect"
-    compile 'org.reflections:reflections:0.9.11'
+
+    runtime "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5"
+    runtime 'org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:0.22.5'
+    runtime "org.jetbrains.kotlin:kotlin-reflect"
+    runtime 'org.reflections:reflections:0.9.11'
 }
 
 shadowJar {

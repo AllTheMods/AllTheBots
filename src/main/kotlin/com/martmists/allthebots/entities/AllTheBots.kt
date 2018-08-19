@@ -1,10 +1,12 @@
 package com.martmists.allthebots.entities
 
+import com.martmists.allthebots.entities.ars.Set
 import com.martmists.chitose.entities.Core
 import com.martmists.chitose.entities.cmd.HelpFormatter
 import com.martmists.chitose.entities.provided.*
 import com.martmists.chitose.entities.util.TypeConverter
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
 class AllTheBots(
         prefix: Array<String>,
@@ -18,5 +20,17 @@ class AllTheBots(
         if (event.guild.idLong == 254530689225981953) {
             event.guild.controller.addRolesToMember(event.member, event.guild.getRoleById(297602126853570560)).queue()
         }
+    }
+
+    override fun onMessageReceived(event: MessageReceivedEvent) {
+        super.onMessageReceived(event)
+        listeners.forEach {
+            println(it)
+            it.run(event)
+        }
+    }
+
+    companion object {
+        val listeners = mutableListOf<Set>()
     }
 }

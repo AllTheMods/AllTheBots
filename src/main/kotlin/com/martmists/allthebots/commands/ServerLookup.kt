@@ -90,7 +90,7 @@ class RemoveServer(private val servers: MutableList<ServerEntry>): SubCommand() 
             }
             servers.remove(server)
             saveServers(servers)
-            ctx.send("Server '$name' successfully removed registered!")
+            ctx.send("Server '$name' successfully removed!")
         }
 
     }
