@@ -22,7 +22,7 @@ data class ServerEntry(
 
 
 fun saveServers(servers: MutableList<ServerEntry>){
-    val writer = File("servers.json").writer()
+    val writer = File("data/servers.json").writer()
     Gson().toJson(servers.toTypedArray(), writer)
     writer.close()
 }
@@ -148,7 +148,7 @@ class ServerLookup: Command() {
     private val servers: MutableList<ServerEntry>
 
     init {
-        val reader = File("servers.json").reader()
+        val reader = File("data/servers.json").reader()
         servers = Gson().fromJson(reader, Array<ServerEntry>::class.java).toMutableList()
         reader.close()
 

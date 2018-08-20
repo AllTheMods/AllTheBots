@@ -15,6 +15,8 @@ class JavaScript: Command() {
     override val example = "javascript print('abc');"
     override val usage = "javascript <code>"
 
+    override val ownerOnly = true
+
     init {
         aliases += "js"
 

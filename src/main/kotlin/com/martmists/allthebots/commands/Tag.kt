@@ -12,7 +12,7 @@ data class TagData(
 )
 
 fun saveTags(tags: MutableList<TagData>){
-    val writer = File("tags.json").writer()
+    val writer = File("data/tags.json").writer()
     Gson().toJson(tags.toTypedArray(), writer)
     writer.close()
 }
@@ -112,7 +112,7 @@ class Tag: Command() {
     private val tags: MutableList<TagData>
 
     init {
-        val reader = File("tags.json").reader()
+        val reader = File("data/tags.json").reader()
         tags = Gson().fromJson(reader, Array<TagData>::class.java).toMutableList()
         reader.close()
 

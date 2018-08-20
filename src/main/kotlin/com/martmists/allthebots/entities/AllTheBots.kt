@@ -25,7 +25,6 @@ class AllTheBots(
     override fun onMessageReceived(event: MessageReceivedEvent) {
         super.onMessageReceived(event)
         listeners.forEach {
-            println(it)
             it.run(event)
         }
     }
