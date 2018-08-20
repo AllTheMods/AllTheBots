@@ -77,8 +77,48 @@ class EditARS(val arsTable: MutableMap<String, Pair<String, Set>>) : SubCommand(
     }
 }
 
+
+class InspectARS(val arsTable: MutableMap<String, Pair<String, Set>>) : SubCommand() {
+    override val name = "inspect"
+    override val description = "inspect ARS System"
+    override val example = "ars inspect poll"
+    override val usage = "ars inspect <name>"
+
+    init {
+        userPermissions += UserPermission(Permission.MANAGE_SERVER)
+
+        arguments += argument<String>("name")
+    }
+
+    override fun run(ctx: CommandContext) {
+        val name = ctx.args["name"] as String
+
+
+        if (arsTable.containsKey(name)) {
+            val content = arsTable[name]!!.first
+            ctx.send("```ruby\n$content```")
+        } else {
+            ctx.send("Autoresponse '${name}' does not exist.")
+        }
+    }
+}
+
+
+class HelpARS: SubCommand() {
+    override val name = "help"
+    override val description = "Guide for ARS System"
+    override val example = "ars help"
+    override val usage = "ars help"
+
+    override fun run(ctx: CommandContext) {
+        val guide = File("data/ARSGuide.md").readText()
+        ctx.send(guide)
+    }
+}
+
+
 class AutoResponse : Command() {
-    override val description = "ARS System"
+    override val description = "ARS System (see `!ars help` for more info)"
     override val example = "ars poll={reactMe: :thumbsup:}"
     override val usage = "ars <ARS>"
 
@@ -101,6 +141,8 @@ class AutoResponse : Command() {
 
         subcommands += EditARS(arsTable)
         subcommands += RemoveARS(arsTable)
+        subcommands += InspectARS(arsTable)
+        subcommands += HelpARS()
 
         arguments += argument<String>("ars")
     }

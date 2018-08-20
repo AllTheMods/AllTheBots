@@ -24,7 +24,7 @@ open class ARSParser : BaseParser<Any>() {
     }
 
     open fun Word(): Rule {
-        return OneOrMore(FirstOf(Char(), Int(), Misc(), ':', ' '))
+        return OneOrMore(FirstOf(Char(), Int(), Misc(), Emote(), ':', ' '))
     }
 
     open fun ID(): Rule {
@@ -35,6 +35,10 @@ open class ARSParser : BaseParser<Any>() {
         return FirstOf(CharRange('a', 'z'), CharRange('A', 'Z'))
     }
 
+    open fun Emote(): Rule {
+        return OneOrMore(CharRange('\uD000', '\uDFFF'))
+    }
+
     open fun Int(): Rule {
         return CharRange('0', '9')
     }
@@ -43,9 +47,13 @@ open class ARSParser : BaseParser<Any>() {
         return AnyOf("[]()|.!?_-/&$%*+@#,")
     }
 
+    open fun ComplexExpression(): Rule {
+        return Sequence(Word(), Whitespace(), Expressions())
+    }
+
     open fun Expression(): Rule {
         return Sequence(
                 '{', Whitespace(), ID(), Whitespace(), ':', Whitespace(),
-                FirstOf(Expressions(), Word()), Whitespace(), '}', Whitespace())
+                FirstOf(ComplexExpression(), Expressions(), Word()), Whitespace(), '}', Whitespace())
     }
 }

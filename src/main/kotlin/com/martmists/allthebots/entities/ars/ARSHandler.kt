@@ -21,6 +21,7 @@ class ARSHandler(private val input: String) {
                     "EOI" -> null
                     "ARS" -> x.children.map { convert(it) }
                     "Expressions" -> x.children.map { convert(it) }
+                    "ComplexExpression" -> x.children.map { convert(it) }
                     "Expression" -> {
                         val args = x.children.map { convert(it) }.toMutableList()
                         args.removeIf { it == null }
@@ -51,11 +52,43 @@ class ARSHandler(private val input: String) {
                             }
                             "embed" -> {
                                 val value = args[1] as List<Any?>
-                                Embed((value[0] as List<Token>).toTypedArray())
+                                val newArgs = value[0] as List<Token>
+                                val props = mutableListOf<EmbedProperty>()
+                                val actions: MutableList<MessageAction> = mutableListOf()
+                                for (arg in newArgs){
+                                    if (arg is EmbedProperty){
+                                        props += arg
+                                    } else if (arg is MessageAction){
+                                        actions += arg
+                                    }
+                                }
+
+                                val actionsArray= if (actions.isEmpty()){
+                                    null
+                                } else {
+                                    actions.toTypedArray()
+                                }
+                                Embed(props.toTypedArray(), actionsArray)
                             }
                             "message" -> {
-                                val value = args[1] as List<String>
-                                return Message(value[0])
+                                val newArgs = args[1] as List<Any>
+                                try {
+                                    val finalArgs = (newArgs[0] as List<Any?>).toMutableList()
+                                    finalArgs.removeIf { it == null }
+                                    val content = finalArgs[0] as String
+                                    MessageCreate(content, (finalArgs[1] as List<MessageAction>).toTypedArray())
+                                } catch(e: Throwable) {
+                                    val content = newArgs[0] as String
+                                    MessageCreate(content)
+                                }
+
+                            }
+                            "delete" -> {
+                                Delete()
+                            }
+                            "message.react" -> {
+                                val emote = args[1] as List<String>
+                                MessageAction("react", emote[0])
                             }
                             else -> null
                         }

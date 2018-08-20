@@ -1,6 +1,7 @@
 package com.martmists.allthebots.entities.ars
 
 import net.dv8tion.jda.core.EmbedBuilder
+import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
 fun String.replaceEventVars(event: MessageReceivedEvent): String {
@@ -29,7 +30,7 @@ class NOP : Token() {
     override fun run(event: MessageReceivedEvent) {}
 }
 
-data class Set(val name: String, val actions: Array<Token>) : Token() {
+class Set(val name: String, val actions: Array<Token>) : Token() {
     override fun toString(): String {
         return "Set($name, [${actions.joinToString(", ") { it.toString() }}])"
     }
@@ -43,9 +44,9 @@ data class Set(val name: String, val actions: Array<Token>) : Token() {
     }
 }
 
-data class Embed(val children: Array<Token>) : Token() {
+class Embed(val children: Array<EmbedProperty>, val actions: Array<MessageAction>? = null) : Token() {
     override fun toString(): String {
-        return "Embed([${children.joinToString(", ") { it.toString() }}])"
+        return "Embed([${children.joinToString(", ") { it.toString() }}], [${if (actions != null) actions.joinToString(", ") { it.toString() } else ""}])"
     }
 
     override fun run(event: MessageReceivedEvent) {
@@ -53,7 +54,6 @@ data class Embed(val children: Array<Token>) : Token() {
             for (child in children) {
                 child.run(event)
 
-                child as EmbedProperty
                 when {
                     child.property == "title" -> {
                         setTitle(child.value)
@@ -74,11 +74,17 @@ data class Embed(val children: Array<Token>) : Token() {
             }
         }.build()
 
-        event.channel.sendMessage(embed).queue()
+        event.channel.sendMessage(embed).queue{
+            if (actions != null) {
+                actions.forEach { action ->
+                    action.run(it)
+                }
+            }
+        }
     }
 }
 
-data class EmbedProperty(val property: String, var value: String) : Token() {
+class EmbedProperty(val property: String, var value: String) : Token() {
     override fun toString(): String {
         return "Property($property, $value)"
     }
@@ -88,22 +94,55 @@ data class EmbedProperty(val property: String, var value: String) : Token() {
     }
 }
 
-data class Message(val content: String) : Token() {
+class MessageCreate(val content: String, val actions: Array<MessageAction>? = null) : Token() {
     override fun toString(): String {
-        return "Message($content)"
+        return "MessageCreate($content)"
     }
 
     override fun run(event: MessageReceivedEvent) {
-        event.channel.sendMessage(content.replaceEventVars(event)).queue()
+        event.channel.sendMessage(content.replaceEventVars(event)).queue {
+            if (actions != null) {
+                actions.forEach { action ->
+                    action.run(it)
+                }
+            }
+        }
     }
 }
 
-data class React(val emote: String) : Token() {
+class React(val emote: String) : Token() {
     override fun toString(): String {
         return "React($emote)"
     }
 
     override fun run(event: MessageReceivedEvent) {
-        event.message.addReaction(emote).queue()
+        event.message.addReaction(emote.removeSuffix(" ")).queue()
+    }
+}
+
+class Delete : Token() {
+    override fun toString(): String {
+        return "Delete()"
+    }
+
+    override fun run(event: MessageReceivedEvent) {
+        event.message.delete().queue()
+    }
+}
+
+class MessageAction(val action: String, val data: Any) : Token() {
+    override fun toString(): String {
+        return "MessageAction($action, $data)"
+    }
+
+    override fun run(event: MessageReceivedEvent) {}
+
+    fun run(message: Message) {
+        when (action) {
+            "react" -> {
+                data as String
+                message.addReaction(data.removeSuffix(" ")).queue()
+            }
+        }
     }
 }
