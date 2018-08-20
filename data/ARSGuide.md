@@ -1,4 +1,4 @@
-========== __**ARS GUIDE**__ ==========
+# ARS GUIDE
 
 Format: 
 ```ruby
@@ -7,9 +7,10 @@ Format:
 There can be an infinite amount of functions per trigger.
 Trigger names have to be unique.
 
-*note: &... means it's a function*
-__Functions:__
-```md
+*note: &... means it's a function*    
+
+### Functions:
+```ini
 [message]
 Sends a message.
 Possible arguments:
@@ -36,8 +37,8 @@ Possible arguments:
 
 ```
 
-__SubFunctions__
-```md
+### SubFunctions
+```ini
 [message.react]
 See &react.
 
@@ -63,7 +64,7 @@ Possible arguments:
 - Color (Hexadecimal, i.e. 000000 to FFFFFF)
 ```
 
-__Variables__
+### Variables
 There are some variables you can use.
 ```ruby
 %.user                  Username of ARS user.
@@ -77,7 +78,7 @@ There are some variables you can use.
 %.userColor             Color of the current user.
 ```
 
-__Examples:__
+### Examples:
 Poll:
 ```ruby
 poll = 
