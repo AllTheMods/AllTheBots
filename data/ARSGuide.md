@@ -18,7 +18,7 @@ Possible arguments:
 - &message.react
 
 [react]
-Reacts to the user's message.
+Reacts to the users message.
 Possible arguments:
 - emote
 
