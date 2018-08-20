@@ -7,7 +7,7 @@ Format:
 There can be an infinite amount of functions per trigger.
 Trigger names have to be unique.
 
-*note: &... means it's a function*    
+*note: `&...` means it's a function*    
 
 ### Functions:
 ```ini
