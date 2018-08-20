@@ -30,7 +30,7 @@ class Help: Command() {
         } else {
             val args = command.split(" ").toMutableList()
             val arg = args.removeAt(0)
-            val cmd = Core.handler.commands.get(arg) ?: return ctx.send("Command '$arg' not found")
+            val cmd = Core.handler.commands.values.firstOrNull { it.effectiveName == arg || it.aliases.contains(arg) } ?: return ctx.send("Command '$arg' not found")
 
             val targetCmd = cmd.getSubCommand(args)
 
