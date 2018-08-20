@@ -30,6 +30,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile 'com.google.code.gson:gson:2.8.5'
+    compile "org.parboiled:parboiled-java:1.1.8"
 
     compile files("libs/Chitose.jar")
     compile 'net.dv8tion:JDA:3.5.1_350'

@@ -1,7 +1,10 @@
 package com.martmists.allthebots.commands.moderation
 
-import com.martmists.chitose.entities.cmd.*
-import com.martmists.chitose.entities.permissions.*
+import com.martmists.chitose.entities.cmd.Command
+import com.martmists.chitose.entities.cmd.CommandContext
+import com.martmists.chitose.entities.cmd.argument
+import com.martmists.chitose.entities.permissions.BotPermission
+import com.martmists.chitose.entities.permissions.UserPermission
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Member
 

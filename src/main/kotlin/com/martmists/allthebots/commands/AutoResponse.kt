@@ -12,9 +12,9 @@ import com.martmists.chitose.entities.permissions.UserPermission
 import net.dv8tion.jda.core.Permission
 import java.io.File
 
-fun saveARS(arsTable: MutableMap<String, Pair<String, Set>>){
+fun saveARS(arsTable: MutableMap<String, Pair<String, Set>>) {
     val writer = File("data/ARS.json").writer()
-    Gson().toJson(arsTable.map{ it.value.first }.toTypedArray(), writer)
+    Gson().toJson(arsTable.map { it.value.first }.toTypedArray(), writer)
     writer.close()
 }
 
@@ -65,7 +65,7 @@ class EditARS(val arsTable: MutableMap<String, Pair<String, Set>>) : SubCommand(
 
         if (arsTable.containsKey(func.name)) {
             val old = arsTable[func.name]!!
-            arsTable.remove(name)
+            arsTable.remove(func.name)
             arsTable[name] = Pair(ars, func)
             AllTheBots.listeners.remove(old.second)
             AllTheBots.listeners.add(func)
@@ -89,7 +89,7 @@ class AutoResponse : Command() {
         val arsList = Gson().fromJson(reader, Array<String>::class.java).toMutableList()
         reader.close()
 
-        for (entry in arsList){
+        for (entry in arsList) {
             val func = ARSHandler(entry).parse()
             AllTheBots.listeners += func
             arsTable[func.name] = Pair(entry, func)
@@ -110,7 +110,7 @@ class AutoResponse : Command() {
 
         val func = ARSHandler(ars).parse()
 
-        if (arsTable.containsKey(func.name)){
+        if (arsTable.containsKey(func.name)) {
             ctx.send("Autoresponse '${func.name}' already exists.")
         } else {
             arsTable[func.name] = Pair(ars, func)

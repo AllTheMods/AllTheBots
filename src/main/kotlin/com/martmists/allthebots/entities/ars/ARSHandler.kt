@@ -1,94 +1,78 @@
 package com.martmists.allthebots.entities.ars
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.SyntaxException
+import org.parboiled.Node
+import org.parboiled.Parboiled
+import org.parboiled.errors.ErrorUtils
+import org.parboiled.parserunners.ReportingParseRunner
 
-class ARSHandler(input: String) {
-    private val tokens = Tokenizer(input).tokenize().toMutableList()
 
-    private var current: Tokenizer.Token = tokens.removeAt(0)
-    private var last: Tokenizer.Token? = null
-
+class ARSHandler(private val input: String) {
 
     fun parse(): Set {
-        eat("ID")
-        val name = last!!.content
-        eat("ASSIGN")
-        val actions = statements()
-        return Set(name, actions)
-    }
-
-    private fun statements(): Array<Token> {
-        val parsed = mutableListOf<Token>()
-        parsed += statement()
-        while (current.id == "SEMI"){
-            eat("SEMI")
-            parsed += statement()
-        }
-        return parsed.toTypedArray()
-    }
-
-    private fun embed(): Array<Token>{
-        val embedProperties = mutableListOf<Token>()
-        fun single(): Token {
-            eat("LBRACKET")
-            eat("ID")
-            val property = last!!.content
-            eat("COLON")
-            val words = mutableListOf<String>()
-            while (current.id == "ID") {
-                eat("ID")
-                words += last!!.content
-            }
-            val value = words.joinToString(" ")
-            eat("RBRACKET")
-            return EmbedProperty(property, value)
-        }
-        embedProperties += single()
-        while (current.id == "SEMI"){
-            eat("SEMI")
-            if (current.id == "LBRACKET")
-                embedProperties += single()
-        }
-        return embedProperties.toTypedArray()
-    }
-
-    private fun statement(): Token {
-        eat("LBRACKET")
-        eat("ID")
-        val type = last!!.content
-        eat("COLON")
-        val token = when (type){
-            "embed" -> {
-                eat("SEMI")
-                val children = embed()
-                Embed(children)
-            }
-            "message" -> {
-                val words = mutableListOf<String>()
-                while (current.id == "ID") {
-                    eat("ID")
-                    words += last!!.content
+        val parser = Parboiled.createParser(ARSParser::class.java)
+        val result = ReportingParseRunner<Any>(parser.Set()).run(input)
+        if (result.parseErrors.isNotEmpty()) {
+            throw Exception(ErrorUtils.printParseError(result.parseErrors[0]))
+        } else {
+            fun convert(x: Node<Any>): Any? {
+                return when (x.label) {
+                    "ID" -> result.inputBuffer.extract(x.startIndex, x.endIndex)
+                    "Whitespace" -> null
+                    "EOI" -> null
+                    "ARS" -> x.children.map { convert(it) }
+                    "Expressions" -> x.children.map { convert(it) }
+                    "Expression" -> {
+                        val args = x.children.map { convert(it) }.toMutableList()
+                        args.removeIf { it == null }
+                        when (args[0]) {
+                            "react" -> {
+                                val emote = args[1] as List<String>
+                                React(emote[0])
+                            }
+                            "title" -> {
+                                val value = args[1] as List<String>
+                                EmbedProperty(args[0].toString(), value[0])
+                            }
+                            "description" -> {
+                                val value = args[1] as List<String>
+                                EmbedProperty(args[0].toString(), value[0])
+                            }
+                            "color" -> {
+                                val value = args[1] as List<String>
+                                EmbedProperty(args[0].toString(), value[0])
+                            }
+                            "field[0]" -> {
+                                val value = args[1] as List<String>
+                                EmbedProperty(args[0].toString(), value[0])
+                            }
+                            "field[1]" -> {
+                                val value = args[1] as List<String>
+                                EmbedProperty(args[0].toString(), value[0])
+                            }
+                            "embed" -> {
+                                val value = args[1] as List<Any?>
+                                Embed((value[0] as List<Token>).toTypedArray())
+                            }
+                            "message" -> {
+                                val value = args[1] as List<String>
+                                return Message(value[0])
+                            }
+                            else -> null
+                        }
+                    }
+                    "Word" -> result.inputBuffer.extract(x.startIndex, x.endIndex)
+                    "Set" -> {
+                        val args = x.children.map { convert(it) }.toMutableList()
+                        args.removeIf { it == null }
+                        val value = args[1] as List<Any>
+                        Set(args[0] as String, (value[0] as List<Token>).toTypedArray())
+                    }
+                    "FirstOf" -> x.children.map { convert(it) }
+                    else -> null
                 }
-                Message(words.joinToString(" "))
             }
-            "react" -> {
-                eat("ID")
-                val emote = last!!.content
-                React(emote)
-            }
-            else -> NOP()
+
+            return convert(result.parseTreeRoot) as Set
         }
-
-        eat("RBRACKET")
-
-        return token
-    }
-
-    private fun eat(type: String) {
-        val next = tokens.removeAt(0)
-        last = current
-        if (current.id != type)
-            throw SyntaxException("Expected $type, found ${current.id}")
-        current = next
     }
 }

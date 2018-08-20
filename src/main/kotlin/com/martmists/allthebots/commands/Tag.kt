@@ -1,7 +1,10 @@
 package com.martmists.allthebots.commands
 
 import com.google.gson.Gson
-import com.martmists.chitose.entities.cmd.*
+import com.martmists.chitose.entities.cmd.Command
+import com.martmists.chitose.entities.cmd.CommandContext
+import com.martmists.chitose.entities.cmd.SubCommand
+import com.martmists.chitose.entities.cmd.argument
 import com.martmists.chitose.entities.permissions.UserPermission
 import net.dv8tion.jda.core.Permission
 import java.io.File
@@ -11,13 +14,13 @@ data class TagData(
         val content: String
 )
 
-fun saveTags(tags: MutableList<TagData>){
+fun saveTags(tags: MutableList<TagData>) {
     val writer = File("data/tags.json").writer()
     Gson().toJson(tags.toTypedArray(), writer)
     writer.close()
 }
 
-class CreateTag(private val tags: MutableList<TagData>): SubCommand() {
+class CreateTag(private val tags: MutableList<TagData>) : SubCommand() {
     override val name = "create"
     override val description = "Create a tag"
     override val usage = "tag create <tag name> <content>"
@@ -30,7 +33,7 @@ class CreateTag(private val tags: MutableList<TagData>): SubCommand() {
         arguments += argument<String>("content")
     }
 
-    override fun run(ctx: CommandContext){
+    override fun run(ctx: CommandContext) {
         val name = ctx.args["name"] as String
         val content = ctx.args["content"] as String
 
@@ -45,7 +48,7 @@ class CreateTag(private val tags: MutableList<TagData>): SubCommand() {
     }
 }
 
-class DeleteTag(private val tags: MutableList<TagData>): SubCommand() {
+class DeleteTag(private val tags: MutableList<TagData>) : SubCommand() {
     override val name = "delete"
     override val description = "Delete a tag"
     override val usage = "tag delete <tag name>"
@@ -57,7 +60,7 @@ class DeleteTag(private val tags: MutableList<TagData>): SubCommand() {
         arguments += argument<String>("name")
     }
 
-    override fun run(ctx: CommandContext){
+    override fun run(ctx: CommandContext) {
         val name = ctx.args["name"] as String
 
         val filteredTags = tags.filter { it.name == name }
@@ -73,7 +76,7 @@ class DeleteTag(private val tags: MutableList<TagData>): SubCommand() {
     }
 }
 
-class EditTag(private val tags: MutableList<TagData>): SubCommand() {
+class EditTag(private val tags: MutableList<TagData>) : SubCommand() {
     override val name = "edit"
     override val description = "Edit a tag"
     override val usage = "tag edit <tag name> <new content>"
@@ -86,7 +89,7 @@ class EditTag(private val tags: MutableList<TagData>): SubCommand() {
         arguments += argument<String>("content")
     }
 
-    override fun run(ctx: CommandContext){
+    override fun run(ctx: CommandContext) {
         val name = ctx.args["name"] as String
         val content = ctx.args["content"] as String
 
@@ -104,7 +107,7 @@ class EditTag(private val tags: MutableList<TagData>): SubCommand() {
     }
 }
 
-class Tag: Command() {
+class Tag : Command() {
     override val description = "Create, edit, delete or retrieve tags"
     override val usage = "tag <tag name>"
     override val example = "tag needaserver"
@@ -123,7 +126,7 @@ class Tag: Command() {
         arguments += argument<String>("name")
     }
 
-    override fun run(ctx: CommandContext){
+    override fun run(ctx: CommandContext) {
         val name = ctx.args["name"] as String
 
         val filteredTags = tags.filter { it.name == name }

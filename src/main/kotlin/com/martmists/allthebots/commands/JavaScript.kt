@@ -10,7 +10,7 @@ import net.dv8tion.jda.core.Permission
 import javax.script.ScriptContext
 import javax.script.SimpleScriptContext
 
-class JavaScript: Command() {
+class JavaScript : Command() {
     override val description = "Run JavaScript code"
     override val example = "javascript print('abc');"
     override val usage = "javascript <code>"
@@ -25,7 +25,7 @@ class JavaScript: Command() {
         arguments += argument<String>("code")
     }
 
-    class CF: ClassFilter {
+    class CF : ClassFilter {
         override fun exposeToScripts(p0: String?): Boolean {
             println(p0)
             return false

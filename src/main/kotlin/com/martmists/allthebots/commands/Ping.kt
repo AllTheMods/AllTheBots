@@ -5,7 +5,7 @@ import com.martmists.chitose.entities.cmd.CommandContext
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
-class Ping: Command() {
+class Ping : Command() {
     override val description = "ping"
     override val example = "ping"
     override val usage = "ping"

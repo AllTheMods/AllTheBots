@@ -7,7 +7,7 @@ import com.martmists.chitose.entities.cmd.argument
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.MessageEmbed
 
-class Help: Command() {
+class Help : Command() {
     override val description = "get help"
     override val example = "help tag"
     override val usage = "help [command]"
@@ -19,7 +19,7 @@ class Help: Command() {
     override fun run(ctx: CommandContext) {
         val command = ctx.args["command"] as String
 
-        if (command.isEmpty()){
+        if (command.isEmpty()) {
             val helpText = Core.handler.commands.filter {
                 it.value.userPermissions.any { !ctx.member.hasPermission(it.perm) }
             }.map {
@@ -30,11 +30,12 @@ class Help: Command() {
         } else {
             val args = command.split(" ").toMutableList()
             val arg = args.removeAt(0)
-            val cmd = Core.handler.commands.values.firstOrNull { it.effectiveName == arg || it.aliases.contains(arg) } ?: return ctx.send("Command '$arg' not found")
+            val cmd = Core.handler.commands.values.firstOrNull { it.effectiveName == arg || it.aliases.contains(arg) }
+                    ?: return ctx.send("Command '$arg' not found")
 
             val targetCmd = cmd.getSubCommand(args)
 
-            if (targetCmd.second.isNotEmpty() || targetCmd.first.userPermissions.any { !ctx.member.hasPermission(it.perm) }){
+            if (targetCmd.second.isNotEmpty() || targetCmd.first.userPermissions.any { !ctx.member.hasPermission(it.perm) }) {
                 ctx.send("(Sub)Command not found.")
             } else {
                 val helpText = Core.handler.getHelp(targetCmd.first, ctx, true) as Pair<String, MessageEmbed>

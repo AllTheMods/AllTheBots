@@ -1,7 +1,7 @@
 package com.martmists.allthebots.entities.mcquery
 
 
-import java.util.ArrayList
+import java.util.*
 
 class QueryResponse(oData: ByteArray, private val fullstat: Boolean) {
 
