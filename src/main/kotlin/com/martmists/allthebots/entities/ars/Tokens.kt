@@ -9,8 +9,10 @@ fun String.replaceEventVars(event: MessageReceivedEvent): String {
     var new = this
     for (entry in mapOf<String, String>(
             "%.channelDescription" to event.textChannel.topic,
+            "%.channelMention" to event.textChannel.asMention,
             "%.userColor" to event.member.color.rgb.toString(16),
             "%.userNickname" to event.member.effectiveName,
+            "%.userMention" to event.member.asMention,
             "%.topRole" to event.member.roles[0].name,
 
             "%.server" to event.guild.name,
