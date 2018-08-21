@@ -1,6 +1,7 @@
 package com.martmists.allthebots.entities.ars
 
 import net.dv8tion.jda.core.EmbedBuilder
+import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.util.concurrent.TimeUnit
@@ -43,6 +44,9 @@ abstract class Token {
     // Unused classes
 
     class NOP: Token() {
+        override fun toString(): String {
+            return "NOP()"
+        }
         override fun run(event: MessageReceivedEvent) { }
         companion object Factory: Token.Factory() {
             override val inits = arrayOf<String>()
@@ -58,7 +62,7 @@ abstract class Token {
         }
 
         override fun run(event: MessageReceivedEvent) {
-            if (event.message.contentRaw.toLowerCase().startsWith("!${name.toLowerCase()}")) {
+            if (event.message.contentRaw.toLowerCase().startsWith(name.toLowerCase())) {
                 for (action in actions) {
                     action.run(event)
                 }
@@ -263,6 +267,52 @@ abstract class Token {
                     it.run(event)
                 }
             }
+        }
+    }
+
+    class RoleAdd(val role: String) :Token() {
+        companion object Factory: Token.Factory() {
+            override val inits = arrayOf("role.add")
+            override fun init(name: String, args: List<Any>): Token {
+                val roleName = args[0] as String
+                return RoleAdd(roleName)
+            }
+        }
+
+        override fun toString(): String {
+            return "RoleAdd($role)"
+        }
+
+        fun run(member: Member){
+            val role = member.guild.getRolesByName(role, true).first()
+            member.guild.controller.addRolesToMember(member, role)
+        }
+
+        override fun run(event: MessageReceivedEvent) {
+            run(event.member)
+        }
+    }
+
+    class RoleTake(val role: String) :Token() {
+        companion object Factory: Token.Factory() {
+            override val inits = arrayOf("role.remove")
+            override fun init(name: String, args: List<Any>): Token {
+                val roleName = args[0] as String
+                return RoleTake(roleName)
+            }
+        }
+
+        override fun toString(): String {
+            return "RoleAdd($role)"
+        }
+
+        fun run(member: Member){
+            val role = member.guild.getRolesByName(role, true).first()
+            member.guild.controller.removeSingleRoleFromMember(member, role)
+        }
+
+        override fun run(event: MessageReceivedEvent) {
+            run(event.member)
         }
     }
 

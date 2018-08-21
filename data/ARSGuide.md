@@ -43,6 +43,16 @@ Possible arguments:
 - &message.react
 - &message.delete
 
+[role.add]
+Gives a role to the user.
+Possible arguments:
+- role name
+
+[role.remove]
+Removes a role from the user.
+Possible arguments:
+- role name
+
 ```
 
 ### SubFunctions
