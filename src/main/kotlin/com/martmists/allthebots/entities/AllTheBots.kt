@@ -26,7 +26,11 @@ class AllTheBots(
     override fun onMessageReceived(event: MessageReceivedEvent) {
         super.onMessageReceived(event)
         listeners.forEach {
-            it.run(event)
+            try {
+                it.run(event)
+            } catch(e: Throwable){
+                event.channel.sendMessage("Exception occured in autoresponse '${it.name}':\n$e")
+            }
         }
     }
 

@@ -32,7 +32,7 @@ open class ARSParser : BaseParser<Any>() {
     }
 
     open fun Char(): Rule {
-        return FirstOf(CharRange('a', 'z'), CharRange('A', 'Z'))
+        return FirstOf(CharRange('a', 'z'), CharRange('A', 'Z'), "!")
     }
 
     open fun Emote(): Rule {
@@ -44,7 +44,7 @@ open class ARSParser : BaseParser<Any>() {
     }
 
     open fun Misc(): Rule {
-        return AnyOf("[]()|.!?_-/&$%*+@#,")
+        return AnyOf("[]()|.?_-/&$%*+@#,")
     }
 
     open fun Expression(): Rule {

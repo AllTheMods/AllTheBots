@@ -20,7 +20,7 @@ class ARSHandler(private val input: String) {
             throw Exception(ErrorUtils.printParseError(result.parseErrors[0]))
         } else {
             fun convert(x: Node<Any>): Any? {
-                val y = when (x.label) {
+                return when (x.label) {
                     "ID" -> result.inputBuffer.extract(x.startIndex, x.endIndex)
                     "Whitespace" -> null
                     "EOI" -> null
@@ -56,7 +56,6 @@ class ARSHandler(private val input: String) {
                     "Sequence" -> x.children.map { println(it); convert(it) }
                     else -> null
                 }
-                return y
             }
 
             return convert(result.parseTreeRoot) as Token.Set
@@ -65,9 +64,10 @@ class ARSHandler(private val input: String) {
 }
 
 fun main(args: Array<String>){
+    // Test function
     val code = """
     x = {
-    if: %.user == c
+    if: {!message.contains: atm3 is good}
     {message: a
     {message.delete: 10}
     }

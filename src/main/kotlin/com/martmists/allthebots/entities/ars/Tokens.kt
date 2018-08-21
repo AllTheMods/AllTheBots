@@ -28,10 +28,19 @@ fun String.replaceEventVars(event: MessageReceivedEvent): String {
 abstract class Token {
     abstract fun run(event: MessageReceivedEvent)
 
+    // ABCs
+
     abstract class Factory {
         abstract val inits: Array<String>
         abstract fun init(name: String, args: List<Any>): Token
     }
+
+    abstract class BooleanToken: Token() {
+        override fun run(event: MessageReceivedEvent) {}
+        abstract fun getValue(event: MessageReceivedEvent): Boolean
+    }
+
+    // Unused classes
 
     class NOP: Token() {
         override fun run(event: MessageReceivedEvent) { }
@@ -63,6 +72,8 @@ abstract class Token {
             }
         }
     }
+
+    // Functions
 
     class Embed(val children: Array<EmbedProperty>, val actions: Array<MessageAction>? = null) : Token() {
         companion object Factory: Token.Factory() {
@@ -124,41 +135,6 @@ abstract class Token {
                     }
                 }
             }
-        }
-    }
-
-    class EmbedProperty(val property: String, var value: String) : Token() {
-        companion object Factory: Token.Factory() {
-            override val inits = arrayOf("title", "description", "color", "field[0]", "field[1]")
-            override fun init(name: String, args: List<Any>): Token {
-                return when (name) {
-                    "title" -> {
-                        EmbedProperty(name, args[0] as String)
-                    }
-                    "description" -> {
-                        EmbedProperty(name, args[0] as String)
-                    }
-                    "color" -> {
-                        EmbedProperty(name, args[0] as String)
-                    }
-                    "field[0]" -> {
-                        EmbedProperty(name, args[0] as String)
-                    }
-                    "field[1]" -> {
-                        EmbedProperty(name, args[0] as String)
-                    }
-
-                    else -> NOP()
-                }
-            }
-        }
-
-        override fun toString(): String {
-            return "Property($property, $value)"
-        }
-
-        override fun run(event: MessageReceivedEvent) {
-            value = value.replaceEventVars(event)
         }
     }
 
@@ -248,6 +224,85 @@ abstract class Token {
         }
     }
 
+    class IfStatement(val condition: BooleanToken, val ifTrue: List<Token>, val ifFalse: List<Token>): Token() {
+        companion object Factory: Token.Factory(){
+            override val inits = arrayOf("if")
+            override fun init(name: String, args: List<Any>): Token {
+                val arguments = args.toMutableList()
+                val condition = arguments.removeAt(0) as BooleanToken
+                val trueTokens = mutableListOf<Token>()
+                val falseTokens = mutableListOf<Token>()
+                var isTrue = true
+                for (arg in arguments){
+                    if (arg == "else"){
+                        isTrue = false
+                    } else {
+                        arg as Token
+                        if (isTrue){
+                            trueTokens += arg
+                        } else {
+                            falseTokens += arg
+                        }
+                    }
+                }
+                return IfStatement(condition, trueTokens.toList(), falseTokens.toList())
+            }
+        }
+
+        override fun toString(): String {
+            return "If($condition, $ifTrue, $ifFalse)"
+        }
+
+        override fun run(event: MessageReceivedEvent) {
+            if (condition.getValue(event)){
+                ifTrue.forEach {
+                    it.run(event)
+                }
+            } else {
+                ifFalse.forEach {
+                    it.run(event)
+                }
+            }
+        }
+    }
+
+    // SubFunctions
+
+    class EmbedProperty(val property: String, var value: String) : Token() {
+        companion object Factory: Token.Factory() {
+            override val inits = arrayOf("title", "description", "color", "field[0]", "field[1]")
+            override fun init(name: String, args: List<Any>): Token {
+                return when (name) {
+                    "title" -> {
+                        EmbedProperty(name, args[0] as String)
+                    }
+                    "description" -> {
+                        EmbedProperty(name, args[0] as String)
+                    }
+                    "color" -> {
+                        EmbedProperty(name, args[0] as String)
+                    }
+                    "field[0]" -> {
+                        EmbedProperty(name, args[0] as String)
+                    }
+                    "field[1]" -> {
+                        EmbedProperty(name, args[0] as String)
+                    }
+
+                    else -> NOP()
+                }
+            }
+        }
+
+        override fun toString(): String {
+            return "Property($property, $value)"
+        }
+
+        override fun run(event: MessageReceivedEvent) {
+            value = value.replaceEventVars(event)
+        }
+    }
+
     class MessageAction(val action: String, val data: Any) : Token() {
         companion object Factory: Token.Factory() {
             override val inits = arrayOf("message.react", "message.delete")
@@ -259,7 +314,7 @@ abstract class Token {
                         MessageAction("react", emote)
                     }
                     "message.delete" -> {
-                        if (args.size > 1) {
+                        if (args.isNotEmpty()) {
                             val time = args[0] as String
                             MessageAction("delete", time.toLong())
                         } else {
@@ -291,46 +346,28 @@ abstract class Token {
         }
     }
 
-    class IfStatement(val condition: String, val ifTrue: List<Token>, val ifFalse: List<Token>): Token() {
-        companion object Factory: Token.Factory(){
-            override val inits = arrayOf("if")
+    // Conditions
+
+    class MessageContains(val arg: String, val inverse: Boolean): BooleanToken() {
+        companion object Factory: Token.Factory() {
+            override val inits = arrayOf("message.contains", "!message.contains")
+
             override fun init(name: String, args: List<Any>): Token {
-                val arguments = args.toMutableList()
-                val condition = arguments.removeAt(0) as String
-                val trueTokens = mutableListOf<Token>()
-                val falseTokens = mutableListOf<Token>()
-                var isTrue = true
-                for (arg in arguments){
-                    if (arg == "else"){
-                        isTrue = false
-                    } else {
-                        arg as Token
-                        if (isTrue){
-                            trueTokens += arg
-                        } else {
-                            falseTokens += arg
-                        }
-                    }
+                return when (name){
+                    "!message.contains" -> MessageContains(args[0] as String, true)
+                    "message.contains" -> MessageContains(args[0] as String, false)
+                    else -> NOP()
                 }
-                return IfStatement(condition, trueTokens.toList(), falseTokens.toList())
             }
+        }
+
+        override fun getValue(event: MessageReceivedEvent): Boolean {
+            val bool = event.message.contentRaw.contains(arg)
+            return if (inverse) !bool else bool
         }
 
         override fun toString(): String {
-            return "If($condition, $ifTrue, $ifFalse)"
-        }
-
-        override fun run(event: MessageReceivedEvent) {
-            val args = condition.split("==")
-            if (args[0] == args[1]){
-                ifTrue.forEach {
-                    it.run(event)
-                }
-            } else {
-                ifFalse.forEach {
-                    it.run(event)
-                }
-            }
+            return "MessageContains($arg, $inverse)"
         }
     }
 }

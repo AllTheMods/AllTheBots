@@ -75,6 +75,22 @@ Possible arguments:
 - Color (Hexadecimal, i.e. 000000 to FFFFFF)
 ```
 
+### Conditional
+Some functions are conditionals or checkers. These are usually top-level, but may appear as subfunctions.
+```ini
+[if]
+Possible arguments:
+- any &condition
+- functions
+- "else"
+- functions if function is false
+
+[message.contains]
+Can be inverted by prepending !
+Possible arguments:
+- text
+```
+
 ### Variables
 There are some variables you can use.
 ```ruby
@@ -84,9 +100,11 @@ There are some variables you can use.
 
 %.userNickname          User's nickname. If they don't have one,
                         their username is used.
-%.channelDescription    The channel description.
-%.topRole               Name of the user's highest role.
 %.userColor             Color of the current user.
+%.userMention           Mentions the user.
+%.channelDescription    The channel description.
+%.channelMention        Mentions the channel.
+%.topRole               Name of the user's highest role.
 ```
 
 ### Examples:
