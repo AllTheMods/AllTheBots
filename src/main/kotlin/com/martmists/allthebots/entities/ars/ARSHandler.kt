@@ -21,7 +21,7 @@ class ARSHandler(private val input: String) {
         } else {
             fun convert(x: Node<Any>): Any? {
                 return when (x.label) {
-                    "ID" -> result.inputBuffer.extract(x.startIndex, x.endIndex)
+                    "ID" -> result.inputBuffer.extract(x.startIndex, x.endIndex).removeSuffix(" ")
                     "Whitespace" -> null
                     "EOI" -> null
                     "ARS" -> x.children.map { convert(it) }.first()
@@ -44,7 +44,7 @@ class ARSHandler(private val input: String) {
                             null
                         }
                     }
-                    "Word" -> result.inputBuffer.extract(x.startIndex, x.endIndex)
+                    "Word" -> result.inputBuffer.extract(x.startIndex, x.endIndex).removeSuffix(" ")
                     "Set" -> {
                         val args = x.children.map { convert(it) }.toMutableList()
                         args.removeIf { it == null }
@@ -67,15 +67,16 @@ fun main(args: Array<String>){
     // Test function
     val code = """
     x = {
-    if: {!message.contains: atm3 is good}
-    {message: a
-    {message.delete: 10}
+    if: {message.contains: atm1}
+    {message: a}
+    elseif {message.contains: atm2}
+    {message: b
+        {delete: 10}
     }
+    elseif {message.contains: atm3}
+    {message: c}
     else
-    {embed:
-    {title: abc}
-    {field[0]: title|%.topRole}
-    }
+    {message: d}
     }
     """.trimIndent()
     println(ARSHandler(code).parse())

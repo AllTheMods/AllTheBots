@@ -43,6 +43,7 @@ dependencies {
 
 shadowJar {
     archiveName = "AllTheBots.jar"
+    mainClassName = "com.martmists.allthebots.MainKt"
 }
 
 compileKotlin {
@@ -51,4 +52,3 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
-
