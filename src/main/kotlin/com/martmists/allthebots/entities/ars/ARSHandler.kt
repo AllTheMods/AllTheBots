@@ -20,13 +20,14 @@ class ARSHandler(private val input: String) {
             throw Exception(ErrorUtils.printParseError(result.parseErrors[0]))
         } else {
             fun convert(x: Node<Any>): Any? {
-                return when (x.label) {
+                val y = when (x.label) {
                     "ID" -> result.inputBuffer.extract(x.startIndex, x.endIndex)
                     "Whitespace" -> null
                     "EOI" -> null
                     "ARS" -> x.children.map { convert(it) }.first()
+                    "Argument" -> x.children.map { convert(it) }.first { it != null }
+                    "Arguments" -> x.children.map { convert(it) }
                     "Expressions" -> x.children.map { convert(it) }
-                    "ComplexExpression" -> x.children.map { convert(it) }
                     "Expression" -> {
                         val args = x.children.map { convert(it) }.toMutableList()
                         args.removeIf { it == null }
@@ -35,9 +36,10 @@ class ARSHandler(private val input: String) {
                             companion.inits.contains(args[0])
                         } as KClass<Token>?
 
-                        return if (clazz != null) {
+                        if (clazz != null) {
                             val companion = clazz.companionObjectInstance as Token.Factory
-                            companion.init(args[0] as String, args as List<Any>)
+                            val arguments = (args[1] as List<Any>?) ?: listOf()
+                            companion.init(args[0] as String, arguments)
                         } else {
                             null
                         }
@@ -47,14 +49,34 @@ class ARSHandler(private val input: String) {
                         val args = x.children.map { convert(it) }.toMutableList()
                         args.removeIf { it == null }
                         val value = args[1] as List<Token>
-                        Token.Set(args[0] as String, value.toTypedArray())
+                        Token.Set(args[0] as String, value)
                     }
-                    "FirstOf" -> x.children.map { convert(it) }.first()
+                    "FirstOf" -> x.children.map { convert(it) }.first { it != null }
+                    "OneOrMore" -> x.children.map { convert(it) }
+                    "Sequence" -> x.children.map { println(it); convert(it) }
                     else -> null
                 }
+                return y
             }
 
             return convert(result.parseTreeRoot) as Token.Set
         }
     }
+}
+
+fun main(args: Array<String>){
+    val code = """
+    x = {
+    if: %.user == c
+    {message: a
+    {message.delete: 10}
+    }
+    else
+    {embed:
+    {title: abc}
+    {field[0]: title|%.topRole}
+    }
+    }
+    """.trimIndent()
+    println(ARSHandler(code).parse())
 }
