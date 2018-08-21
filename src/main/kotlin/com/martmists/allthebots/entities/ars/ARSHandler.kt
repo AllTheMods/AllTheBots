@@ -10,7 +10,7 @@ import kotlin.reflect.full.companionObjectInstance
 
 class ARSHandler(private val input: String) {
     companion object {
-        val classes = Token::class.nestedClasses.filter { !it.isCompanion }
+        val classes = Token::class.nestedClasses.filter { !it.isCompanion && !it.isAbstract }
     }
 
     fun parse(): Token.Set {

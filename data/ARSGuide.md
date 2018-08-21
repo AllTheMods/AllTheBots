@@ -16,6 +16,12 @@ Sends a message.
 Possible arguments:
 - text
 - &message.react
+- &message.delete
+
+[dm]
+Sends the user a DM
+Possible arguments:
+- text
 
 [react]
 Reacts to the users message.
@@ -24,7 +30,8 @@ Possible arguments:
 
 [delete]
 Deletes the original message.
-No arguments.
+Possible arguments:
+- time (in seconds)
 
 [embed]
 Sends an embed.
@@ -34,6 +41,7 @@ Possible arguments:
 - &description
 - &color
 - &message.react
+- &message.delete
 
 ```
 
@@ -41,6 +49,9 @@ Possible arguments:
 ```ini
 [message.react]
 See &react.
+
+[message.react]
+See &delete.
 
 [field]
 Adds a field to the embed.

@@ -3,6 +3,7 @@ package com.martmists.allthebots.entities.ars
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
+import java.util.concurrent.TimeUnit
 
 fun String.replaceEventVars(event: MessageReceivedEvent): String {
     var new = this
@@ -170,9 +171,9 @@ abstract class Token {
         companion object Factory: Token.Factory() {
             override val inits = arrayOf("message")
             override fun init(name: String, args: List<Any?>): MessageCreate {
-                val newArgs = args[1] as List<Any>
+                val newArgs = args[1] as List<Any?>
                 return try {
-                    val finalArgs = (newArgs[0] as List<Any?>).toMutableList()
+                    val finalArgs = newArgs.toMutableList()
                     finalArgs.removeIf { it == null }
                     val content = finalArgs[0] as String
                     MessageCreate(content, (finalArgs[1] as List<MessageAction>).toTypedArray())
@@ -198,12 +199,32 @@ abstract class Token {
         }
     }
 
+    class DM(val content: String): Token(){
+        companion object Factory: Token.Factory() {
+            override val inits = arrayOf("dm", "pm")
+            override fun init(name: String, args: List<Any?>): DM {
+                val content = args[1] as String
+                return DM(content)
+            }
+        }
+
+        override fun toString(): String {
+            return "DM($content)"
+        }
+
+        override fun run(event: MessageReceivedEvent) {
+            event.author.openPrivateChannel().queue {
+                it.sendMessage(content).queue()
+            }
+        }
+    }
+
     class React(val emote: String) : Token() {
         companion object Factory: Token.Factory() {
             override val inits = arrayOf("react")
             override fun init(name: String, args: List<Any?>): React {
-                val emote = args[1] as List<String>
-                return React(emote[0])
+                val emote = args[1] as String
+                return React(emote)
             }
         }
 
@@ -216,11 +237,16 @@ abstract class Token {
         }
     }
 
-    class Delete : Token() {
+    class Delete(val time: Long = 0) : Token() {
         companion object Factory: Token.Factory() {
             override val inits = arrayOf("delete")
             override fun init(name: String, args: List<Any?>): Delete {
-                return Delete()
+                return if (args.size > 1) {
+                    val time = args[1] as String
+                    Delete(time.toLong())
+                } else {
+                    Delete()
+                }
             }
         }
 
@@ -229,19 +255,27 @@ abstract class Token {
         }
 
         override fun run(event: MessageReceivedEvent) {
-            event.message.delete().queue()
+            event.message.delete().queueAfter(time, TimeUnit.SECONDS)
         }
     }
 
     class MessageAction(val action: String, val data: Any) : Token() {
         companion object Factory: Token.Factory() {
-            override val inits = arrayOf("message.react")
+            override val inits = arrayOf("message.react", "message.delete")
 
             override fun init(name: String, args: List<Any?>): Token {
                 return when (name) {
                     "message.react" -> {
                         val emote = args[1] as List<String>
                         MessageAction("react", emote[0])
+                    }
+                    "message.delete" -> {
+                        if (args.size > 1) {
+                            val time = args[1] as String
+                            MessageAction("delete", time.toLong())
+                        } else {
+                            MessageAction("delete", 0L)
+                        }
                     }
                     else -> NOP()
                 }
@@ -259,6 +293,10 @@ abstract class Token {
                 "react" -> {
                     data as String
                     message.addReaction(data.removeSuffix(" ")).queue()
+                }
+                "delete" -> {
+                    data as Long
+                    message.delete().queueAfter(data, TimeUnit.SECONDS)
                 }
             }
         }
