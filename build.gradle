@@ -34,10 +34,10 @@ dependencies {
 
     compile files("libs/Chitose.jar")
     compile 'net.dv8tion:JDA:3.5.1_350'
+    compile "org.jetbrains.kotlin:kotlin-reflect"
 
     runtime "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5"
     runtime 'org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:0.22.5'
-    runtime "org.jetbrains.kotlin:kotlin-reflect"
     runtime 'org.reflections:reflections:0.9.11'
 }
 

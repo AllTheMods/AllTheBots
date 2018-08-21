@@ -1,6 +1,6 @@
 package com.martmists.allthebots.entities
 
-import com.martmists.allthebots.entities.ars.Set
+import com.martmists.allthebots.entities.ars.Token
 import com.martmists.chitose.entities.Core
 import com.martmists.chitose.entities.cmd.HelpFormatter
 import com.martmists.chitose.entities.provided.DefaultHelpFormatter
@@ -31,6 +31,6 @@ class AllTheBots(
     }
 
     companion object {
-        val listeners = mutableListOf<Set>()
+        val listeners = mutableListOf<Token.Set>()
     }
 }

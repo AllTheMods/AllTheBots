@@ -3,7 +3,7 @@ package com.martmists.allthebots.commands
 import com.google.gson.Gson
 import com.martmists.allthebots.entities.AllTheBots
 import com.martmists.allthebots.entities.ars.ARSHandler
-import com.martmists.allthebots.entities.ars.Set
+import com.martmists.allthebots.entities.ars.Token
 import com.martmists.chitose.entities.cmd.Command
 import com.martmists.chitose.entities.cmd.CommandContext
 import com.martmists.chitose.entities.cmd.SubCommand
@@ -12,13 +12,13 @@ import com.martmists.chitose.entities.permissions.UserPermission
 import net.dv8tion.jda.core.Permission
 import java.io.File
 
-fun saveARS(arsTable: MutableMap<String, Pair<String, Set>>) {
+fun saveARS(arsTable: MutableMap<String, Pair<String, Token.Set>>) {
     val writer = File("data/ARS.json").writer()
     Gson().toJson(arsTable.map { it.value.first }.toTypedArray(), writer)
     writer.close()
 }
 
-class RemoveARS(val ars: MutableMap<String, Pair<String, Set>>) : SubCommand() {
+class RemoveARS(val ars: MutableMap<String, Pair<String, Token.Set>>) : SubCommand() {
     override val name = "remove"
     override val description = "Remove from ARS System"
     override val example = "ars remove myars"
@@ -46,7 +46,7 @@ class RemoveARS(val ars: MutableMap<String, Pair<String, Set>>) : SubCommand() {
     }
 }
 
-class EditARS(val arsTable: MutableMap<String, Pair<String, Set>>) : SubCommand() {
+class EditARS(val arsTable: MutableMap<String, Pair<String, Token.Set>>) : SubCommand() {
     override val name = "edit"
     override val description = "edit ARS System"
     override val example = "ars edit myars={...}"
@@ -78,7 +78,7 @@ class EditARS(val arsTable: MutableMap<String, Pair<String, Set>>) : SubCommand(
 }
 
 
-class InspectARS(val arsTable: MutableMap<String, Pair<String, Set>>) : SubCommand() {
+class InspectARS(val arsTable: MutableMap<String, Pair<String, Token.Set>>) : SubCommand() {
     override val name = "inspect"
     override val description = "inspect ARS System"
     override val example = "ars inspect poll"
@@ -122,7 +122,7 @@ class AutoResponse : Command() {
     override val example = "ars poll={reactMe: :thumbsup:}"
     override val usage = "ars <ARS>"
 
-    private val arsTable = mutableMapOf<String, Pair<String, Set>>()
+    private val arsTable = mutableMapOf<String, Pair<String, Token.Set>>()
 
     init {
         val reader = File("data/ARS.json").reader()

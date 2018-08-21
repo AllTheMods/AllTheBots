@@ -4,11 +4,16 @@ import org.parboiled.Node
 import org.parboiled.Parboiled
 import org.parboiled.errors.ErrorUtils
 import org.parboiled.parserunners.ReportingParseRunner
+import kotlin.reflect.KClass
+import kotlin.reflect.full.companionObjectInstance
 
 
 class ARSHandler(private val input: String) {
+    companion object {
+        val classes = Token::class.nestedClasses.filter { !it.isCompanion }
+    }
 
-    fun parse(): Set {
+    fun parse(): Token.Set {
         val parser = Parboiled.createParser(ARSParser::class.java)
         val result = ReportingParseRunner<Any>(parser.Set()).run(input)
         if (result.parseErrors.isNotEmpty()) {
@@ -19,93 +24,37 @@ class ARSHandler(private val input: String) {
                     "ID" -> result.inputBuffer.extract(x.startIndex, x.endIndex)
                     "Whitespace" -> null
                     "EOI" -> null
-                    "ARS" -> x.children.map { convert(it) }
+                    "ARS" -> x.children.map { convert(it) }.first()
                     "Expressions" -> x.children.map { convert(it) }
                     "ComplexExpression" -> x.children.map { convert(it) }
                     "Expression" -> {
                         val args = x.children.map { convert(it) }.toMutableList()
                         args.removeIf { it == null }
-                        when (args[0]) {
-                            "react" -> {
-                                val emote = args[1] as List<String>
-                                React(emote[0])
-                            }
-                            "title" -> {
-                                val value = args[1] as List<String>
-                                EmbedProperty(args[0].toString(), value[0])
-                            }
-                            "description" -> {
-                                val value = args[1] as List<String>
-                                EmbedProperty(args[0].toString(), value[0])
-                            }
-                            "color" -> {
-                                val value = args[1] as List<String>
-                                EmbedProperty(args[0].toString(), value[0])
-                            }
-                            "field[0]" -> {
-                                val value = args[1] as List<String>
-                                EmbedProperty(args[0].toString(), value[0])
-                            }
-                            "field[1]" -> {
-                                val value = args[1] as List<String>
-                                EmbedProperty(args[0].toString(), value[0])
-                            }
-                            "embed" -> {
-                                val value = args[1] as List<Any?>
-                                val newArgs = value[0] as List<Token>
-                                val props = mutableListOf<EmbedProperty>()
-                                val actions: MutableList<MessageAction> = mutableListOf()
-                                for (arg in newArgs){
-                                    if (arg is EmbedProperty){
-                                        props += arg
-                                    } else if (arg is MessageAction){
-                                        actions += arg
-                                    }
-                                }
+                        val clazz = classes.firstOrNull { it as KClass<Token>
+                            val companion = it.companionObjectInstance as Token.Factory
+                            companion.inits.contains(args[0])
+                        } as KClass<Token>?
 
-                                val actionsArray= if (actions.isEmpty()){
-                                    null
-                                } else {
-                                    actions.toTypedArray()
-                                }
-                                Embed(props.toTypedArray(), actionsArray)
-                            }
-                            "message" -> {
-                                val newArgs = args[1] as List<Any>
-                                try {
-                                    val finalArgs = (newArgs[0] as List<Any?>).toMutableList()
-                                    finalArgs.removeIf { it == null }
-                                    val content = finalArgs[0] as String
-                                    MessageCreate(content, (finalArgs[1] as List<MessageAction>).toTypedArray())
-                                } catch(e: Throwable) {
-                                    val content = newArgs[0] as String
-                                    MessageCreate(content)
-                                }
-
-                            }
-                            "delete" -> {
-                                Delete()
-                            }
-                            "message.react" -> {
-                                val emote = args[1] as List<String>
-                                MessageAction("react", emote[0])
-                            }
-                            else -> null
+                        return if (clazz != null) {
+                            val companion = clazz.companionObjectInstance as Token.Factory
+                            companion.init(args[0] as String, args as List<Any>)
+                        } else {
+                            null
                         }
                     }
                     "Word" -> result.inputBuffer.extract(x.startIndex, x.endIndex)
                     "Set" -> {
                         val args = x.children.map { convert(it) }.toMutableList()
                         args.removeIf { it == null }
-                        val value = args[1] as List<Any>
-                        Set(args[0] as String, (value[0] as List<Token>).toTypedArray())
+                        val value = args[1] as List<Token>
+                        Token.Set(args[0] as String, value.toTypedArray())
                     }
-                    "FirstOf" -> x.children.map { convert(it) }
+                    "FirstOf" -> x.children.map { convert(it) }.first()
                     else -> null
                 }
             }
 
-            return convert(result.parseTreeRoot) as Set
+            return convert(result.parseTreeRoot) as Token.Set
         }
     }
 }
