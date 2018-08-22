@@ -180,13 +180,30 @@ Possible arguments:
 ### Examples:  
 Poll:  
 ```ruby  
-poll = {react: :thumbsup:}  
+!poll = 
+{react: :thumbsup:}  
 {react: :thumbsdown:}  
 ```  
   
 Embed:  
 ```ruby  
-embed = {embed:  
- {title: My Title} {description: My Description} {field[1]: Example:|This is an inline field} {field[0]: This field|is NOT inline} {color: 000000}     {message.react: :ok_hand:}  
-}  
+!sampleEmbed = 
+{embed:  
+    {title: My Title}
+    {description: My Description}
+    {field[1]: Example:|This is an inline field}
+    {field[0]: This field|is NOT inline}
+    {color: 000000}
+
+    {message.react: :ok_hand:}  
+}
+```
+
+Dm something to the user, and notify a specific person:
+```
+!sendme = 
+{dm: Some text}
+{user: 518753928735
+    {dm: %.user used sendme}
+}
 ```
