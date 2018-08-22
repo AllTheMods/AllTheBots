@@ -208,45 +208,49 @@ Dm something to the user, and notify a specific person:
 }
 ```
 
-```puml
+![Alt text](https://g.gravizo.com/source/marker_10?https%3A%2F%2Fraw.githubusercontent.com%2FAllTheMods%2FAllTheBots%2Fmaster%2Fdata%2FARSGuide.md)
+
+<details> 
+<summary></summary>
+marker_10
 digraph Example {
     graph[pad="0.5", nodesep="1", ranksep="2"]
     rankdir="LR"
 
     Init[shape=Msquare]
-    Init -> function_message 
+    Init -> function_message
     Init -> function_dm
-    Init -> function_react 
-    Init -> function_delete 
+    Init -> function_react
+    Init -> function_delete
     Init -> function_embed
-    Init -> function_role_add 
-    Init -> function_role_remove 
+    Init -> function_role_add
+    Init -> function_role_remove
     Init -> function_pin
     Init -> get_member
     Init -> get_role
     Init -> get_channel
     Init -> conditional_if
-    
+
     subgraph cluster_0 {
         label = "Functions"
-        function_message    
-        function_dm    
-        function_react    
-        function_delete    
-        function_embed    
-        function_role_add    
-        function_role_remove    
+        function_message
+        function_dm
+        function_react
+        function_delete
+        function_embed
+        function_role_add
+        function_role_remove
         function_pin
         function_edit
     }
-    
+
     subgraph cluster_1 {
         label = "getters"
         get_member
         get_role
         get_channel
     }
-    
+
     subgraph cluster_2 {
         label = "Variable Types"
         Member
@@ -255,16 +259,16 @@ digraph Example {
         Role
         Boolean
     }
-    
+
     subgraph cluster_3 {
         label = "Conditions"
         conditional_if
     }
-    
+
     get_member -> Member
     get_role -> Role
     get_channel -> Channel
-    
+
     Member -> function_message
     Member -> function_dm
     Member -> function_role_add
@@ -275,11 +279,12 @@ digraph Example {
     Message -> function_delete
     Message -> function_edit
     Message -> function_pin
-     
+
     function_message -> Message
     function_embed -> Message
     function_dm -> Message
-    
+
     conditional_if -> Init
 }
-```
+marker_10
+</details>
