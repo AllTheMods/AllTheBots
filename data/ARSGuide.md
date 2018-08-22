@@ -208,9 +208,9 @@ Dm something to the user, and notify a specific person:
 }
 ```
 
-![Alt text](https://g.gravizo.com/source/marker_10?https%3A%2F%2Fraw.githubusercontent.com%2FAllTheMods%2FAllTheBots%2Fmaster%2Fdata%2FARSGuide.md)
+![Graph](http://g.gravizo.com/source/marker_10?https%3A%2F%2Fraw.githubusercontent.com%2FAllTheMods%2FAllTheBots%2Fmaster%2Fdata%2FARSGuide.md)
 
-<details> 
+<details style="height:0"> 
 <summary></summary>
 marker_10
 digraph Example {
