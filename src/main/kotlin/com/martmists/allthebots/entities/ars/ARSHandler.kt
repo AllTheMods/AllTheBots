@@ -38,13 +38,13 @@ class ARSHandler(private val input: String) {
 
                         if (clazz != null) {
                             val companion = clazz.companionObjectInstance as Token.Factory
-                            val arguments = (args[1] as List<Any>?) ?: listOf()
+                            val arguments = (args[1] as List<Token>?) ?: listOf()
                             companion.init(args[0] as String, arguments)
                         } else {
                             null
                         }
                     }
-                    "Word" -> result.inputBuffer.extract(x.startIndex, x.endIndex).removeSuffix(" ")
+                    "Word" -> Token.StringToken(result.inputBuffer.extract(x.startIndex, x.endIndex).removeSuffix(" "))
                     "Set" -> {
                         val args = x.children.map { convert(it) }.toMutableList()
                         args.removeIf { it == null }
@@ -74,7 +74,9 @@ fun main(args: Array<String>){
         {delete: 10}
     }
     elseif {message.contains: atm3}
-    {message: c}
+    {message: c
+        {react: {emote: 51095}}
+    }
     else
     {message: d}
     }
