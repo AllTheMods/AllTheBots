@@ -28,7 +28,7 @@ class AllTheBots(
         listeners.forEach {
             try {
                 it.run(event)
-            } catch(e: Throwable){
+            } catch (e: Throwable) {
                 event.channel.sendMessage("Exception occured in autoresponse '${it.name}':\n$e")
             }
         }

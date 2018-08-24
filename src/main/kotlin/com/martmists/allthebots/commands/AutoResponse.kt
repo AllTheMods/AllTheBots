@@ -104,7 +104,7 @@ class InspectARS(val arsTable: MutableMap<String, Pair<String, Token.Set>>) : Su
 }
 
 
-class HelpARS: SubCommand() {
+class HelpARS : SubCommand() {
     override val name = "help"
     override val description = "Guide for ARS System"
     override val example = "ars help"

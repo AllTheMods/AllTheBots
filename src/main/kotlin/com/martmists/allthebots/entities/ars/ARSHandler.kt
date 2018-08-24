@@ -31,7 +31,8 @@ class ARSHandler(private val input: String) {
                     "Expression" -> {
                         val args = x.children.map { convert(it) }.toMutableList()
                         args.removeIf { it == null }
-                        val clazz = classes.firstOrNull { it as KClass<Token>
+                        val clazz = classes.firstOrNull {
+                            it as KClass<Token>
                             val companion = it.companionObjectInstance as Token.Factory
                             companion.inits.contains(args[0])
                         } as KClass<Token>?
@@ -63,7 +64,7 @@ class ARSHandler(private val input: String) {
     }
 }
 
-fun main(args: Array<String>){
+fun main(args: Array<String>) {
     // Test function
     val code = """
     x = {

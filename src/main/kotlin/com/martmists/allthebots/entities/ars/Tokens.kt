@@ -27,9 +27,14 @@ fun String.replaceEventVars(event: MessageReceivedEvent): String {
 
 abstract class Token {
     abstract fun run(event: MessageReceivedEvent)
-    open fun run(any: Any) { }
-    open fun getValue(guild: Guild): Any { return NOP() }
-    open fun getValue(any: Any?): Any { return NOP() }
+    open fun run(any: Any) {}
+    open fun getValue(guild: Guild): Any {
+        return NOP()
+    }
+
+    open fun getValue(any: Any?): Any {
+        return NOP()
+    }
 
     // ABCs
 
@@ -38,19 +43,21 @@ abstract class Token {
         abstract fun init(name: String, args: List<Token>): Token
     }
 
-    abstract class BooleanToken: Token() {
+    abstract class BooleanToken : Token() {
         override fun run(event: MessageReceivedEvent) {}
         open fun getValue(any: Any): Boolean = false
     }
 
     // Unused classes
 
-    class NOP: Token() {
+    class NOP : Token() {
         override fun toString(): String {
             return "NOP()"
         }
-        override fun run(event: MessageReceivedEvent) { }
-        companion object Factory: Token.Factory() {
+
+        override fun run(event: MessageReceivedEvent) {}
+
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf<String>()
             override fun init(name: String, args: List<Token>): NOP {
                 return NOP()
@@ -71,7 +78,7 @@ abstract class Token {
             }
         }
 
-        companion object Factory: Token.Factory() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf<String>()
             override fun init(name: String, args: List<Token>): Token {
                 return NOP()
@@ -81,8 +88,8 @@ abstract class Token {
 
     // Variables
 
-    class StringToken(val value: String): Token() {
-        companion object Factory: Token.Factory() {
+    class StringToken(val value: String) : Token() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf<String>()
             override fun init(name: String, args: List<Token>): Token {
                 return NOP()
@@ -93,7 +100,7 @@ abstract class Token {
             return value
         }
 
-        override fun run(event: MessageReceivedEvent) { }
+        override fun run(event: MessageReceivedEvent) {}
 
         override fun getValue(any: Any?): String {
             return value
@@ -102,8 +109,8 @@ abstract class Token {
 
     // Variable getters
 
-    class GetUser(val id: Token, val actions: List<Token>): Token() {
-        companion object Factory: Token.Factory() {
+    class GetUser(val id: Token, val actions: List<Token>) : Token() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("user")
             override fun init(name: String, args: List<Token>): Token {
                 return GetUser(args[0], args.subList(1, args.size))
@@ -121,7 +128,7 @@ abstract class Token {
 
         fun run(guild: Guild) {
             val member = getValue(guild)
-            with (member){
+            with(member) {
                 actions.forEach {
                     it.run(this@with)
                 }
@@ -133,8 +140,8 @@ abstract class Token {
         }
     }
 
-    class GetChannel(val id: Token, val actions: List<Token>): Token() {
-        companion object Factory: Token.Factory() {
+    class GetChannel(val id: Token, val actions: List<Token>) : Token() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("channel")
             override fun init(name: String, args: List<Token>): Token {
                 return GetChannel(args[0], args.subList(1, args.size))
@@ -152,7 +159,7 @@ abstract class Token {
 
         fun run(guild: Guild) {
             val channel = getValue(guild)
-            with (channel){
+            with(channel) {
                 actions.forEach {
                     it.run(this@with)
                 }
@@ -162,8 +169,8 @@ abstract class Token {
         override fun run(event: MessageReceivedEvent) = run(event.guild)
     }
 
-    class GetRole(val id: Token, val actions: List<Token>): Token() {
-        companion object Factory: Token.Factory() {
+    class GetRole(val id: Token, val actions: List<Token>) : Token() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("role")
             override fun init(name: String, args: List<Token>): Token {
                 return GetRole(args[0], args.subList(1, args.size))
@@ -181,7 +188,7 @@ abstract class Token {
 
         fun run(guild: Guild) {
             val role = getValue(guild)
-            with (role){
+            with(role) {
                 actions.forEach {
                     it.run(this@with)
                 }
@@ -193,8 +200,8 @@ abstract class Token {
         }
     }
 
-    class GetEmote(val content: Token, val actions: List<Token>): Token() {
-        companion object Factory: Token.Factory() {
+    class GetEmote(val content: Token, val actions: List<Token>) : Token() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("emote")
             override fun init(name: String, args: List<Token>): Token {
                 return GetEmote(args[0], args.subList(1, args.size))
@@ -210,7 +217,7 @@ abstract class Token {
         }
 
         override fun run(event: MessageReceivedEvent) {
-            with (getValue(event.guild)) {
+            with(getValue(event.guild)) {
                 actions.forEach {
                     it.run(this@with)
                 }
@@ -221,21 +228,21 @@ abstract class Token {
     // Functions
 
     class Embed(val children: Array<EmbedProperty>, val actions: List<Token> = listOf()) : Token() {
-        companion object Factory: Token.Factory() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("embed")
 
             override fun init(name: String, args: List<Token>): Embed {
                 val props = mutableListOf<EmbedProperty>()
                 val actions: MutableList<Token> = mutableListOf()
-                for (arg in args){
-                    if (arg is EmbedProperty){
+                for (arg in args) {
+                    if (arg is EmbedProperty) {
                         props += arg
                     } else {
                         actions += arg
                     }
                 }
 
-                val actionsArray= if (actions.isEmpty()){
+                val actionsArray = if (actions.isEmpty()) {
                     listOf()
                 } else {
                     actions.toList()
@@ -276,7 +283,7 @@ abstract class Token {
                 }
             }.build()
 
-            event.channel.sendMessage(embed).queue{
+            event.channel.sendMessage(embed).queue {
                 actions.forEach { action ->
                     action.run(it)
                 }
@@ -285,10 +292,10 @@ abstract class Token {
     }
 
     class MessageCreate(val content: Token, val actions: List<Token> = listOf()) : Token() {
-        companion object Factory: Token.Factory() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("message")
             override fun init(name: String, args: List<Token>): MessageCreate {
-                return if (args.size > 1){
+                return if (args.size > 1) {
                     MessageCreate(args[0], args.subList(1, args.size) as List<Token>)
                 } else {
                     MessageCreate(args[0])
@@ -300,7 +307,7 @@ abstract class Token {
             return "MessageCreate($content, [${actions.joinToString(",")}])"
         }
 
-        fun run(channel: TextChannel){
+        fun run(channel: TextChannel) {
             val content = content.getValue(channel.guild) as String
             channel.sendMessage(content).queue {
                 actions.forEach { action ->
@@ -319,12 +326,12 @@ abstract class Token {
         }
     }
 
-    class DM(val content: String, val actions: List<Token> = listOf()): Token(){
-        companion object Factory: Token.Factory() {
+    class DM(val content: String, val actions: List<Token> = listOf()) : Token() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("dm", "pm")
             override fun init(name: String, args: List<Token>): DM {
                 val content = args[0].getValue("") as String
-                return if (args.size > 1){
+                return if (args.size > 1) {
                     DM(content, args.subList(1, args.size))
                 } else {
                     DM(content)
@@ -336,9 +343,9 @@ abstract class Token {
             return "DM($content)"
         }
 
-        fun run(member: Member){
+        fun run(member: Member) {
             member.user.openPrivateChannel().queue {
-                it.sendMessage(content).queue{
+                it.sendMessage(content).queue {
                     actions.forEach { action ->
                         action.run(it)
                     }
@@ -348,7 +355,7 @@ abstract class Token {
 
         override fun run(event: MessageReceivedEvent) {
             event.author.openPrivateChannel().queue {
-                it.sendMessage(content.replaceEventVars(event)).queue{
+                it.sendMessage(content.replaceEventVars(event)).queue {
                     actions.forEach { action ->
                         action.run(it)
                     }
@@ -358,7 +365,7 @@ abstract class Token {
     }
 
     class React(val emote: Token) : Token() {
-        companion object Factory: Token.Factory() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("react")
             override fun init(name: String, args: List<Token>): React {
                 return React(args[0])
@@ -369,7 +376,7 @@ abstract class Token {
             return "React($emote)"
         }
 
-        fun run(message: Message){
+        fun run(message: Message) {
             val emote = emote.getValue(message.guild) as String
             message.addReaction(emote).queue()
         }
@@ -380,7 +387,7 @@ abstract class Token {
     }
 
     class Delete(val time: Long = 0) : Token() {
-        companion object Factory: Token.Factory() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("delete")
             override fun init(name: String, args: List<Token>): Delete {
                 return if (args.isNotEmpty()) {
@@ -396,7 +403,7 @@ abstract class Token {
             return "Delete($time)"
         }
 
-        fun run(message: Message){
+        fun run(message: Message) {
             message.delete().queueAfter(time, TimeUnit.SECONDS)
         }
 
@@ -405,8 +412,8 @@ abstract class Token {
         }
     }
 
-    class RoleAdd(val role: Token) :Token() {
-        companion object Factory: Token.Factory() {
+    class RoleAdd(val role: Token) : Token() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("role.add")
             override fun init(name: String, args: List<Token>): Token {
                 return RoleAdd(args[0])
@@ -417,7 +424,7 @@ abstract class Token {
             return "RoleAdd($role)"
         }
 
-        fun run(member: Member){
+        fun run(member: Member) {
             val roleName = role.getValue(member.guild) as String
             val role = member.guild.getRolesByName(roleName, true).first()
             member.guild.controller.addRolesToMember(member, role).queue()
@@ -428,8 +435,8 @@ abstract class Token {
         }
     }
 
-    class RoleTake(val role: Token) :Token() {
-        companion object Factory: Token.Factory() {
+    class RoleTake(val role: Token) : Token() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("role.remove")
             override fun init(name: String, args: List<Token>): Token {
                 return RoleTake(args[0])
@@ -440,7 +447,7 @@ abstract class Token {
             return "RoleAdd($role)"
         }
 
-        fun run(member: Member){
+        fun run(member: Member) {
             val roleName = role.getValue(member.guild) as String
             val role = member.guild.getRolesByName(roleName, true).first()
             member.guild.controller.removeSingleRoleFromMember(member, role).queue()
@@ -451,8 +458,8 @@ abstract class Token {
         }
     }
 
-    class Pin: Token(){
-        companion object Factory: Token.Factory() {
+    class Pin : Token() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("pin")
             override fun init(name: String, args: List<Token>): Token {
                 return Pin()
@@ -475,7 +482,7 @@ abstract class Token {
     // SubFunctions
 
     class EmbedProperty(val property: String, var value: Token) : Token() {
-        companion object Factory: Token.Factory() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("title", "description", "color", "field[0]", "field[1]", "image")
             override fun init(name: String, args: List<Token>): Token {
                 return EmbedProperty(name, args[0])
@@ -496,10 +503,10 @@ abstract class Token {
     }
 
     class Edit(val content: Token, val after: Token = StringToken("0")) : Token() {
-        companion object Factory: Token.Factory() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("attachment", "file")
             override fun init(name: String, args: List<Token>): Token {
-                return if (args.size > 1){
+                return if (args.size > 1) {
                     Edit(args[0], args[1])
                 } else {
                     Edit(args[0])
@@ -511,7 +518,7 @@ abstract class Token {
             return "Edit($content, $after)"
         }
 
-        fun run(message: Message){
+        fun run(message: Message) {
             message.editMessage(content.getValue(message.guild) as String).queueAfter((after.getValue(message.guild) as String).toLong(), TimeUnit.SECONDS)
         }
 
@@ -522,8 +529,8 @@ abstract class Token {
 
     // Conditions
 
-    class IfStatement(val ifTokens: Map<BooleanToken, List<Token>>, val ifFalse: List<Token>): Token() {
-        companion object Factory: Token.Factory(){
+    class IfStatement(val ifTokens: Map<BooleanToken, List<Token>>, val ifFalse: List<Token>) : Token() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("if")
             override fun init(name: String, args: List<Token>): Token {
                 val arguments = args.toMutableList()
@@ -536,18 +543,18 @@ abstract class Token {
                 var currentBool = arguments.removeAt(0) as BooleanToken
                 var bool = true
 
-                for (arg in arguments){
+                for (arg in arguments) {
                     println(arg)
-                    if (arg is BooleanToken){
+                    if (arg is BooleanToken) {
                         currentBool = arg
                     } else if (arg !is StringToken) {
-                        if (bool){
+                        if (bool) {
                             currentTokens.add(arg)
                         } else {
                             elseTokens.add(arg)
                         }
                     } else {
-                        when (arg.getValue("")){
+                        when (arg.getValue("")) {
                             "else" -> {
                                 bool = false
                                 map[currentBool] = currentTokens.toList()
@@ -560,7 +567,7 @@ abstract class Token {
                     }
                 }
 
-                if (currentTokens.isNotEmpty()){
+                if (currentTokens.isNotEmpty()) {
                     map[currentBool] = currentTokens.toList()
                 }
 
@@ -573,8 +580,8 @@ abstract class Token {
         }
 
         override fun getValue(any: Any?): Any {
-            for (entry in ifTokens){
-                if (entry.key.getValue(any!!)){
+            for (entry in ifTokens) {
+                if (entry.key.getValue(any!!)) {
                     for (token in entry.value) {
                         return token.getValue(any)
                     }
@@ -588,8 +595,8 @@ abstract class Token {
         }
 
         override fun run(event: MessageReceivedEvent) {
-            for (entry in ifTokens){
-                if (entry.key.getValue(event)){
+            for (entry in ifTokens) {
+                if (entry.key.getValue(event)) {
                     for (token in entry.value) {
                         token.run(event)
                     }
@@ -602,12 +609,12 @@ abstract class Token {
         }
     }
 
-    class MessageContains(val arg: Token, val inverse: Boolean): BooleanToken() {
-        companion object Factory: Token.Factory() {
+    class MessageContains(val arg: Token, val inverse: Boolean) : BooleanToken() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("message.contains", "!message.contains")
 
             override fun init(name: String, args: List<Token>): Token {
-                return when (name){
+                return when (name) {
                     "!message.contains" -> MessageContains(args[0], true)
                     "message.contains" -> MessageContains(args[0], false)
                     else -> NOP()
@@ -630,12 +637,12 @@ abstract class Token {
         }
     }
 
-    class NicknameContains(val arg: Token, val inverse: Boolean): BooleanToken() {
-        companion object Factory: Token.Factory() {
+    class NicknameContains(val arg: Token, val inverse: Boolean) : BooleanToken() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf("nickname.contains", "!nickname.contains")
 
             override fun init(name: String, args: List<Token>): Token {
-                return when (name){
+                return when (name) {
                     "!nickname.contains" -> NicknameContains(args[0], true)
                     "nickname.contains" -> NicknameContains(args[0], false)
                     else -> NOP()
@@ -658,12 +665,13 @@ abstract class Token {
         }
     }
 
-    class Parameter(val arg: String, val inverse: Boolean): BooleanToken() {
-        companion object Factory: Token.Factory() {
+    class Parameter(val arg: String, val inverse: Boolean) : BooleanToken() {
+        companion object Factory : Token.Factory() {
             override val inits = arrayOf(
                     "parameter", "argument", "param", "arg",
                     "!parameter", "!argument", "!param", "!arg"
             )
+
             override fun init(name: String, args: List<Token>): Token {
                 val match = args[0].getValue("") as String
                 val bool = name.startsWith("!")
