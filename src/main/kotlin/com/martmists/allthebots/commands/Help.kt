@@ -19,9 +19,14 @@ class Help : Command() {
     override fun run(ctx: CommandContext) {
         val command = ctx.args["command"] as String
 
+        // TODO: Support DMs
+        with (Core.handler){
+            println(getHelp(commands["ban"]!!, ctx))
+        }
+
         if (command.isEmpty()) {
             val helpText = Core.handler.commands.filter {
-                it.value.userPermissions.any { !ctx.member.hasPermission(it.perm) }
+                !it.value.userPermissions.any { !ctx.member.hasPermission(it.perm) }
             }.map {
                 val result = Core.handler.getHelp(it.value, ctx, false) as String
                 result
@@ -30,7 +35,7 @@ class Help : Command() {
         } else {
             val args = command.split(" ").toMutableList()
             val arg = args.removeAt(0)
-            val cmd = Core.handler.commands.values.firstOrNull { it.effectiveName == arg || it.aliases.contains(arg) }
+            val cmd = Core.handler.commands.values.firstOrNull { it.effectiveName.toLowerCase() == arg.toLowerCase() || it.aliases.contains(arg.toLowerCase()) }
                     ?: return ctx.send("Command '$arg' not found")
 
             val targetCmd = cmd.getSubCommand(args)
