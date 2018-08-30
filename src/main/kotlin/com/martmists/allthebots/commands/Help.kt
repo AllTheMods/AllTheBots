@@ -20,9 +20,6 @@ class Help : Command() {
         val command = ctx.args["command"] as String
 
         // TODO: Support DMs
-        with (Core.handler){
-            println(getHelp(commands["ban"]!!, ctx))
-        }
 
         if (command.isEmpty()) {
             val helpText = Core.handler.commands.filter {

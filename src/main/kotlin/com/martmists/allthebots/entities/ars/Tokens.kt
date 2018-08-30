@@ -105,15 +105,23 @@ abstract class Token {
         override fun getValue(any: Any?): String {
             return value
         }
+
+        override fun getValue(guild: Guild): String {
+            return value
+        }
     }
 
     // Variable getters
 
-    class GetUser(val id: Token, val actions: List<Token>) : Token() {
+    class GetUser(val id: Token, val actions: List<Token> = listOf()) : Token() {
         companion object Factory : Token.Factory() {
             override val inits = arrayOf("user")
             override fun init(name: String, args: List<Token>): Token {
-                return GetUser(args[0], args.subList(1, args.size))
+                return if (args.size == 1) {
+                    GetUser(args[0])
+                } else {
+                    GetUser(args[0], args.subList(1, args.size))
+                }
             }
         }
 
@@ -140,11 +148,15 @@ abstract class Token {
         }
     }
 
-    class GetChannel(val id: Token, val actions: List<Token>) : Token() {
+    class GetChannel(val id: Token, val actions: List<Token> = listOf()) : Token() {
         companion object Factory : Token.Factory() {
             override val inits = arrayOf("channel")
             override fun init(name: String, args: List<Token>): Token {
-                return GetChannel(args[0], args.subList(1, args.size))
+                return if (args.size == 1) {
+                    GetChannel(args[0])
+                } else {
+                    GetChannel(args[0], args.subList(1, args.size))
+                }
             }
         }
 
@@ -169,11 +181,15 @@ abstract class Token {
         override fun run(event: MessageReceivedEvent) = run(event.guild)
     }
 
-    class GetRole(val id: Token, val actions: List<Token>) : Token() {
+    class GetRole(val id: Token, val actions: List<Token> = listOf()) : Token() {
         companion object Factory : Token.Factory() {
             override val inits = arrayOf("role")
             override fun init(name: String, args: List<Token>): Token {
-                return GetRole(args[0], args.subList(1, args.size))
+                return if (args.size == 1) {
+                    GetRole(args[0])
+                } else {
+                    GetRole(args[0], args.subList(1, args.size))
+                }
             }
         }
 
@@ -200,11 +216,15 @@ abstract class Token {
         }
     }
 
-    class GetEmote(val content: Token, val actions: List<Token>) : Token() {
+    class GetEmote(val content: Token, val actions: List<Token> = listOf()) : Token() {
         companion object Factory : Token.Factory() {
             override val inits = arrayOf("emote")
             override fun init(name: String, args: List<Token>): Token {
-                return GetEmote(args[0], args.subList(1, args.size))
+                return if (args.size == 1) {
+                    GetEmote(args[0])
+                } else {
+                    GetEmote(args[0], args.subList(1, args.size))
+                }
             }
         }
 
@@ -222,6 +242,36 @@ abstract class Token {
                     it.run(this@with)
                 }
             }
+        }
+    }
+
+    class GetMessage(val id: Token, val actions: List<Token> = listOf()) : Token() {
+        companion object Factory : Token.Factory() {
+            override val inits = arrayOf("message.get")
+
+            override fun init(name: String, args: List<Token>): Token {
+                return if (args.size == 1) {
+                    GetMessage(args[0])
+                } else {
+                    GetMessage(args[0], args.subList(1, args.size))
+                }
+            }
+        }
+
+        fun getValue(channel: TextChannel): Message {
+            return channel.getMessageById((id.getValue(channel.guild) as String).toLong()).complete()
+        }
+
+        fun run(channel: TextChannel) {
+            with(getValue(channel)) {
+                actions.forEach {
+                    it.run(this@with)
+                }
+            }
+        }
+
+        override fun run(event: MessageReceivedEvent) {
+            run(event.channel)
         }
     }
 
@@ -296,7 +346,7 @@ abstract class Token {
             override val inits = arrayOf("message")
             override fun init(name: String, args: List<Token>): MessageCreate {
                 return if (args.size > 1) {
-                    MessageCreate(args[0], args.subList(1, args.size) as List<Token>)
+                    MessageCreate(args[0], args.subList(1, args.size))
                 } else {
                     MessageCreate(args[0])
                 }
@@ -692,6 +742,53 @@ abstract class Token {
             val bool = params == arg.replaceEventVars(event)
             return if (inverse) !bool else bool
         }
+    }
+
+    class Bool(val op: Token, val left: Token, val right: Token) : BooleanToken() {
+        private val operators = mapOf(
+                "==" to { a: Any, b: Any -> a == b },
+                "!=" to { a: Any, b: Any -> a != b }
+        )
+
+
+        companion object Factory : Token.Factory() {
+            override val inits = arrayOf("bool")
+            override fun init(name: String, args: List<Token>): Token {
+                return Bool(args[0], args[1], args[2])
+            }
+        }
+
+        override fun getValue(guild: Guild): Any {
+            val operator = operators[op.getValue(guild)]!!
+
+            return operator(left.getValue(guild), right.getValue(guild))
+        }
+
+        fun getValue(event: MessageReceivedEvent): Any {
+            val operator = operators[op.getValue(event.guild)]!!
+
+            return operator(left.getValue(event.guild), right.getValue(event.guild))
+        }
+    }
+
+    // Values
+
+    class Base(val origin: Token, val radix: Token) : Token() {
+        companion object Factory : Token.Factory() {
+            override val inits = arrayOf("base")
+            override fun init(name: String, args: List<Token>): Token {
+                return Base(args[0], args[1])
+            }
+        }
+
+        override fun getValue(guild: Guild): Any {
+            val orig = origin.getValue(guild) as String
+            val rad = radix.getValue(guild) as Int
+
+            return orig.toInt(rad)
+        }
+
+        override fun run(event: MessageReceivedEvent) {}
     }
 }
 

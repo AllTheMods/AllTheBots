@@ -44,7 +44,7 @@ open class ARSParser : BaseParser<Any>() {
     }
 
     open fun Misc(): Rule {
-        return AnyOf("[]()|.?_-/&$%*+@#,")
+        return AnyOf("[]()|.?_-/&$%*+@#,<>")
     }
 
     open fun Expression(): Rule {

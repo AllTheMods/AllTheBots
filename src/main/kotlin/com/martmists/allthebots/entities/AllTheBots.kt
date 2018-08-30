@@ -29,7 +29,8 @@ class AllTheBots(
             try {
                 it.run(event)
             } catch (e: Throwable) {
-                event.channel.sendMessage("Exception occured in autoresponse '${it.name}':\n$e")
+                event.channel.sendMessage("Exception occured in autoresponse '${it.name}':\n$e").queue()
+                e.printStackTrace()
             }
         }
     }
